@@ -50,24 +50,33 @@ while True:
             elif type_vehicle == '2' and place_free_car:
                  vehicle_type = 'Carro'
                  register_list = register_car
-            if vehicle_type and register_list:
-                placa = input('POR FAVOR INGRESA LA PLACA DEL VEHÍCULO >:')
-                hour_inside = datetime.now()
-                place_random = random.choice(place_free_moto if vehicle_type == 'Moto' else place_free_car)
-                register_list.append({'place': place_random, 'placa': placa, 'hour_inside': hour_inside, 'Action': 'Entro'})
-                for x in (name_camp_moto if vehicle_type == 'Moto' else name_camp_cars):
-                    if x['place'] == place_random:
-                        x['available'] = False
-                print(f'El registro de {vehicle_type} es el siguiente: ', register_list)
+    
             else:
                 print(f"No hay lugares disponibles para este tipo de vehículo: {vehicle_type}")
+                continue
+
+            placa = input('Por favor ingresa la placa del vehiculo >:')
+            hour_inside = datetime.now()
+            place_random = random.choice(place_free_moto if vehicle_type == 'Moto' else place_free_car)
+            register_list.append({'place': place_random, 'placa': placa, 'hour_inside': hour_inside, 'Action': 'Entro'})
+            for x in (name_camp_moto if vehicle_type == 'Moto' else name_camp_cars):
+                if x['place'] == place_random:
+                     x['available'] = False
+            print(f'El registro de {vehicle_type} es el siguiente: ', register_list) 
 
         elif options == '2':
             placa_pay = input("Digite la placa a cobrar: ")
             vehicle_type = input("Que tipo de vehiculo es ? (1. Moto, 2. Carro): ")
+
             if vehicle_type == '1':
+                register_list = register_motorcycle
+            elif vehicle_type == '2':
+                register_list = register_car
+            else:
+                print('Opcion de vehiculo no valida. por favor selecione 1 o 2.')
+                continue        
                 #buscar la moto en el registro
-                for entry in register_motorcycle:
+                for entry in register_list:
                     if entry['placa'] == placa_pay and entry['Action'] == 'Entro':
                         hour_inside = entry['hour_inside']
                         place_out = entry['place']
@@ -75,10 +84,10 @@ while True:
                         delta = datetime.now()- hour_inside
                         hour_parqueo = delta.total_seconds() / 3600
                         #Calcular el costo
-                        total_costo = math.ceil(hour_parqueo) * cost_frac_moto
+                        total_costo = math.ceil(hour_parqueo) * (cost_frac_moto if vehicle_type == '1' else cost_frac_car)
                         print("Tu valor a pagar de parqueo es: ", total_costo)
                         #Liberar el parqueadero
-                        for x in name_camp_moto:
+                        for x in (name_camp_moto if vehicle_type == '1' else name_camp_cars):
                             if x['place'] == place_out:
                                 x['available'] = True
                         #Marcar la moto como salida
@@ -86,32 +95,13 @@ while True:
                         entry['total_costo'] = total_costo
                         print("Registro de salida con exito.")
                         break
-            else:
-                print("La placa consultada no fue encontrada.")
-        elif vehicle_type== '2':
-            for entry in register_motorcycle:
-                    if entry['placa'] == placa_pay and entry['Action'] == 'Entro':
-                        hour_inside = entry['hour_inside']
-                        place_out = entry['place']
-                        #Calcular el tiempo del parqueo
-                        delta = datetime.now()- hour_inside
-                        hour_parqueo = delta.total_seconds() / 3600
-                        #Calcular el costo
-                        total_costo = math.ceil(hour_parqueo) * cost_frac_car
-                        print("Tu valor a pagar de parqueo es: ", total_costo)
-                        #Liberar el parqueadero
-                        for x in name_camp_cars:
-                            if x['place'] == place_out:
-                                x['available'] = True
-                        #Marcar la moto como salida
-                        entry['Action'] = 'Salio'
-                        entry['total_costo'] = total_costo
-                        print("Registro de salida con exito.")
-                        pass
+                else:
+                    print('La placa consultada no fue encontrada.')
         elif options == '3':
-            break
+                break 
         else:
-            print("Opcion no valida. por favor seleccione una opcion valida. ")      
+            print('Opcion no valida. Por favor seleccione una opcion valida.')       
+                
 
                         
                             
